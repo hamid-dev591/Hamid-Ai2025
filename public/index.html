@@ -10,9 +10,18 @@
   <div class="overlay"></div>
 
   <div class="container">
-    <h1 class="glow">AI Image Generator is close</h1>
-    <p class="subtext">The reason is that the system has expired. We have to pay and keep it working..</p>
+    <h1 class="glow">AI Image Generator</h1>
+    <p class="subtext">Describe your idea — let AI bring it to life.</p>
 
+    <div class="input-box">
+      <input id="inp" type="text" placeholder="e.g. a futuristic city in space" />
+      <button id="genBtn" class="pulse-btn">Generate</button>
+    </div>
+
+    <div id="loader" class="loader" style="display:none;">
+      <div class="spinner"></div>
+      <span>Generating magic...</span>
+    </div>
 
     <div id="images" class="images-box"></div>
 
@@ -22,5 +31,3 @@
   <script src="/script.js"></script>
 </body>
 </html>
-
-
