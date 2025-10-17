@@ -1,5 +1,5 @@
 // =============================================
-// 🧠 HamidDev AI Image Generator — 3 Images Edition
+// 🧠 HamidDev AI Image Generator — Vercel Edition
 // =============================================
 
 require('dotenv').config();
@@ -12,7 +12,6 @@ const path = require('path');
 const fetch = require('node-fetch');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 const HF_KEY = process.env.HF_KEY;
 if (!HF_KEY) {
@@ -22,18 +21,23 @@ if (!HF_KEY) {
 
 const MODEL_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0';
 
+// إعدادات الأمان والأداء
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(express.json({ limit: '10kb' }));
 app.use(compression());
-app.use(cors({ origin: ['https://hamiddev-site.vercel.app'], methods: ['POST'] }));
-app.use(express.static(path.join(__dirname)));
+app.use(cors({ origin: '*', methods: ['POST'] }));
 
+// تقديم الملفات الثابتة من مجلد "public"
+app.use(express.static(path.join(__dirname, 'public')));
+
+// تحديد معدل الطلبات لحماية السيرفر
 app.use('/api/', rateLimit({
   windowMs: 60 * 1000,
   max: 10,
   message: { error: 'Too many requests, please wait a bit.' }
 }));
 
+// نقطة إنشاء الصور
 app.post('/api/generate', async (req, res) => {
   const prompt = String(req.body?.prompt || '').trim();
   if (!prompt) return res.status(400).json({ error: 'Prompt required.' });
@@ -41,7 +45,7 @@ app.post('/api/generate', async (req, res) => {
   try {
     const images = [];
 
-    // نولّد 3 صور متتابعة
+    // إنشاء 3 صور متتابعة
     for (let i = 0; i < 3; i++) {
       const response = await fetch(MODEL_URL, {
         method: 'POST',
@@ -69,4 +73,5 @@ app.post('/api/generate', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`🚀 Running securely on http://localhost:${PORT}`));
+// ضروري في Vercel
+module.exports = app;

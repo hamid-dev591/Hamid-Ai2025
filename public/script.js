@@ -1,3 +1,7 @@
+// ============================================
+// 🧠 HamidDev AI Image Generator — Client Script
+// ============================================
+
 const btn = document.getElementById("genBtn");
 const inp = document.getElementById("inp");
 const loader = document.getElementById("loader");
@@ -11,6 +15,7 @@ btn.addEventListener("click", async () => {
   imagesBox.innerHTML = "";
 
   try {
+    // إرسال الطلب إلى /api/generate
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -20,36 +25,50 @@ btn.addEventListener("click", async () => {
     const data = await res.json();
     loader.style.display = "none";
 
-    if (data.error) {
-      alert(data.error);
-      return;
-    }
+    if (data.error) return alert(data.error);
+    if (!data.data || !Array.isArray(data.data))
+      return alert("Invalid response from server.");
 
-    const images = data.data || [data.image];
-    if (!images || !images.length) {
-      alert("No image returned from AI. Try again.");
-      return;
-    }
-
-    images.forEach((base64, index) => {
+    // عرض الصور الثلاثة
+    data.data.forEach((base64, index) => {
       const wrapper = document.createElement("div");
-      wrapper.className = "image-card";
+      wrapper.style.position = "relative";
+      wrapper.style.display = "inline-block";
+      wrapper.style.margin = "10px";
 
       const img = document.createElement("img");
       img.src = "data:image/png;base64," + base64;
+      img.style.width = "220px";
+      img.style.borderRadius = "14px";
+      img.style.boxShadow = "0 0 25px #00f0ff55";
+      img.style.maxWidth = "90vw"; // متجاوب مع الهاتف
 
+      // زر التحميل
       const downloadBtn = document.createElement("button");
       downloadBtn.innerText = "Download";
-      downloadBtn.className = "download-btn";
+      downloadBtn.style.position = "absolute";
+      downloadBtn.style.bottom = "8px";
+      downloadBtn.style.right = "8px";
+      downloadBtn.style.padding = "6px 12px";
+      downloadBtn.style.fontSize = "14px";
+      downloadBtn.style.border = "none";
+      downloadBtn.style.borderRadius = "8px";
+      downloadBtn.style.background =
+        "linear-gradient(90deg, #00eaff, #00ffff)";
+      downloadBtn.style.color = "#00151e";
+      downloadBtn.style.fontWeight = "bold";
+      downloadBtn.style.cursor = "pointer";
+      downloadBtn.style.transition = "opacity 0.3s ease";
 
-      // زر التحميل دائم على الجوال
-      if (/Mobi|Android/i.test(navigator.userAgent)) {
+      // إظهار الزر عند اللمس أو تمرير الماوس (للهواتف أيضًا)
+      wrapper.addEventListener("mouseenter", () => {
         downloadBtn.style.opacity = "1";
-      } else {
-        wrapper.addEventListener("mouseenter", () => (downloadBtn.style.opacity = "1"));
-        wrapper.addEventListener("mouseleave", () => (downloadBtn.style.opacity = "0"));
-      }
+      });
+      wrapper.addEventListener("mouseleave", () => {
+        downloadBtn.style.opacity = "1"; // يبقى ظاهر على الهواتف
+      });
 
+      // زر التحميل يعمل فور الضغط
       downloadBtn.addEventListener("click", () => {
         const a = document.createElement("a");
         a.href = img.src;
